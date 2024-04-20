@@ -22,17 +22,9 @@ export const checkCache = async (
 
   const value = await redisClient.get("key");
 
-  if (value) {
-    return res.json(JSON.parse(value));
-  } else {
-    redisClient.setEx(
-      "key",
-      60,
-      JSON.stringify({ abc: "alole", cde: "olale" })
-    );
+  if (!value) {
+    return next();
   }
-
-  console.log(value); // "Hello!"
-
-  return next();
+  
+  return res.json(JSON.parse(value));
 };

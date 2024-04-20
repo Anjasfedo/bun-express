@@ -54,7 +54,7 @@ app.get("/starwars/", checkCache, async (req: Request, res: Response) => {
 
     const data = await response.json();
 
-    redisClient.setEx("key", 600, data);
+    redisClient.setEx("key", 600, JSON.stringify(data));
 
     res.json(data);
   } catch (error) {
