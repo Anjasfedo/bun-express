@@ -10,5 +10,5 @@ export const generateAccessToken = (email: string) => {
 
 export const internalServerErrorResponse = (res: Response, error: unknown) => {
   console.error(error);
-  return res.status(500).json("Internal Server Error");
+  return res.status(500).json({ error: "Internal Server Error", message: error instanceof Error ? error.message : "An unknown error occurred" });
 }

@@ -3,21 +3,32 @@ import express from "express";
 import type { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import { generateAccessToken, internalServerErrorResponse } from "@util/util";
+import { createUser } from "@services/auth.service";
+import { Prisma } from "@prisma/client";
 
 export const signUp = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+  const { email, password, name } = req.body;
 
   try {
-    // const hashPasword = await bcrypt.hash(password, 12)
+    const hashPasword = await bcrypt.hash(password, 12);
+
+    const user = await createUser(email, hashPasword, name);
 
     const token = generateAccessToken(email);
 
-    res.json(token);
+    res.status(201).json({
+      user,
+      token,
+    });
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      return res
+        .status(400)
+        .json({ error: "Bad Request", message: error.message });
+    }
+
     return internalServerErrorResponse(res, error);
   }
-
-  return res.status(201).json("hewroo");
 };
 
 export const signIn = async (req: Request, res: Response) => {

@@ -3,14 +3,14 @@ import type { Request, Response, NextFunction } from "express";
 import redisClient from "@configs/redis.config";
 import { internalServerErrorResponse } from "@util/util";
 
-export const validate =
+export const validateRequest =
   (schema: AnyZodObject) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       await schema.parseAsync(req);
       return next();
     } catch (error) {
-      return res.status(400).json("Bad Request");
+      return res.status(400).json({error: "Bad Request", message: error});
     }
   };
 
@@ -19,8 +19,6 @@ export const checkCache = async (
   res: Response,
   next: NextFunction
 ) => {
-  let search = req.params.search;
-
   try {
     const value = await redisClient.get("starwars");
 

@@ -1,4 +1,4 @@
-import { checkCache, validate } from "src/middlewares/middleware";
+import { checkCache, validateRequest } from "src/middlewares/middleware";
 import DB from "@configs/koneksi.config";
 import express from "express";
 import type { Request, Response } from "express";
@@ -34,7 +34,7 @@ app.get("/", checkCache, async (req: Request, res: Response) => {
   res.send("Hello World!");
 });
 
-app.get("/starwars/", checkCache, async (req: Request, res: Response) => {
+app.get("/starwars", checkCache, async (req: Request, res: Response) => {
   try {
     const response = await fetch(STARWARSAPI);
 
@@ -50,7 +50,7 @@ app.get("/starwars/", checkCache, async (req: Request, res: Response) => {
 
 app.post(
   "/post",
-  validate(userSchema),
+  validateRequest(userSchema),
   (req: Request, res: Response): Response => {
     try {
       return res.status(200).json(req.body);
