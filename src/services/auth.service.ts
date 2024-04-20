@@ -1,7 +1,5 @@
 import DB from "@configs/koneksi.config";
 
-import { PrismaClient, Prisma } from '@prisma/client'
-
 export const createUser = async (
   email: string,
   password: string,
@@ -19,9 +17,28 @@ export const createUser = async (
         name: true,
       },
     });
-  
+
     return createdUser;
   } catch (error) {
-    throw error
+    throw error;
+  }
+};
+
+export const getUser = async (email: string) => {
+  try {
+    const user = await DB.user.findUnique({
+      where: {
+        email,
+      },
+      select: {
+        email: true,
+        name: true,
+        password: true,
+      },
+    });
+
+    return user;
+  } catch (error) {
+    throw error;
   }
 };

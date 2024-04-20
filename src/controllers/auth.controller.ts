@@ -3,7 +3,7 @@ import express from "express";
 import type { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import { generateAccessToken, internalServerErrorResponse } from "@util/util";
-import { createUser } from "@services/auth.service";
+import { createUser, getUser } from "@services/auth.service";
 import { Prisma } from "@prisma/client";
 
 export const signUp = async (req: Request, res: Response) => {
@@ -35,7 +35,26 @@ export const signIn = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   try {
-    // const validPassword = bcrypt.compare()
+    const user = await getUser(email);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const { email: uEmail, name, password: uPassword } = user;
+
+    const validPassword = await bcrypt.compare(password, uPassword);
+
+    if (!validPassword) {
+      return res.status(401).json({ error: "Invalid password" });
+    }
+
+    const token = generateAccessToken(email);
+
+    res.status(200).json({
+      user: { email: uEmail, name },
+      token,
+    });
   } catch (error) {
     return internalServerErrorResponse(res, error);
   }
