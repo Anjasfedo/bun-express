@@ -1,29 +1,63 @@
-import { validate } from "@middlewares/*";
+import { validate } from "@middlewares";
 import { userSchema } from "@schemas/user";
 import DB from "@util/koneksi.server";
 import express from "express";
 import type { Request, Response } from "express";
+import cors from "cors";
+import RedisStore from "connect-redis";
+import redis from "redis";
+import { promisify } from "util";
+import session from "express-session";
+import { ENV } from "@schemas/env";
+
+const redisClient = redis.createClient({
+  url: ENV.REDIS_URL,
+});
+redisClient.connect().catch(console.error);
+// export const getAsync = promisify(client.get).bind(client);
+// export const setAsync = promisify(client.set).bind(client);
 
 const app = express();
-const PORT = 8080;
+const PORT = ENV.PORT;
 
+app.use(cors());
 app.use(express.json());
+app.use(
+  session({
+    store: new RedisStore({ client: redisClient }),
+    secret: ENV.SESSION_SECRET,
+    cookie: {
+      secure: false,
+      httpOnly: true,
+      maxAge: 60,
+    },
+  })
+);
 
-app.get("/", (req: Request, res: Response) => {
+app.get("/", async (req: Request, res: Response) => {
+  req.session.user = 'fedo'
+
+  const { user } = req.session;
+
+  console.log(user);
   res.send("Hello World!");
 });
 
-app.post("/post", async (req: Request, res: Response) => {
-  try {
-    const { body } = await validate(userSchema, req);
-    return res.status(200).json(body);
-  } catch (error) {
-    if (error instanceof Error) {
-      return res.status(400).json({ error: error.message });
-    }
-    return res.status(500).json({ error: "Internal server error" });
-  }
+app.get("/getSessionId", (req, res) => {
+  res.send(req.sessionID);
 });
+
+app.post(
+  "/post",
+  validate(userSchema),
+  (req: Request, res: Response): Response => {
+    try {
+      return res.status(200).json(req.body);
+    } catch (error) {
+      return res.status(500).json(error);
+    }
+  }
+);
 
 const start = (): void => {
   try {

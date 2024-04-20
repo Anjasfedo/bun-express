@@ -28,7 +28,7 @@
     "paths": {
       "@util/*": ["src/utils/*"],
       "@schemas/*": ["src/schemas/*"],
-      "@middlewares/*": ["src/middlewares/middlewares.ts"]
+      "@middlewares": ["src/middlewares/middlewares.ts"]
     }
   }
 }
