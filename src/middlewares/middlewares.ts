@@ -1,5 +1,6 @@
 import type { AnyZodObject } from "zod";
 import type { Request, Response, NextFunction } from "express";
+import { redisClient } from "src";
 
 export const validate =
   (schema: AnyZodObject) =>
@@ -11,3 +12,27 @@ export const validate =
       return res.status(400).json(error);
     }
   };
+
+export const checkCache = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  let search = req.params.search;
+
+  const value = await redisClient.get("key");
+
+  if (value) {
+    return res.json(JSON.parse(value));
+  } else {
+    redisClient.setEx(
+      "key",
+      60,
+      JSON.stringify({ abc: "alole", cde: "olale" })
+    );
+  }
+
+  console.log(value); // "Hello!"
+
+  return next();
+};

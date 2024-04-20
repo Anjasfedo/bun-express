@@ -1,4 +1,4 @@
-import { validate } from "@middlewares";
+import { checkCache, validate } from "@middlewares";
 import { userSchema } from "@schemas/user";
 import DB from "@util/koneksi.server";
 import express from "express";
@@ -10,7 +10,7 @@ import { promisify } from "util";
 import session from "express-session";
 import { ENV } from "@schemas/env";
 
-const redisClient = redis.createClient({
+export const redisClient = redis.createClient({
   url: ENV.REDIS_URL,
 });
 redisClient.connect().catch(console.error);
@@ -19,6 +19,8 @@ redisClient.connect().catch(console.error);
 
 const app = express();
 const PORT = ENV.PORT;
+
+const STARWARSAPI = "https://swapi.dev/api/films/";
 
 app.use(cors());
 app.use(express.json());
@@ -34,13 +36,30 @@ app.use(
   })
 );
 
-app.get("/", async (req: Request, res: Response) => {
-  req.session.user = 'fedo'
+app.get("/", checkCache, async (req: Request, res: Response) => {
+  // req.session.user = "fedo";
 
-  const { user } = req.session;
+  // const { user } = req.session;
 
-  console.log(user);
+  // console.log(user);
+  // redisClient.setEx("key", 60, "hello");
   res.send("Hello World!");
+});
+
+app.get("/starwars/", checkCache, async (req: Request, res: Response) => {
+  try {
+    let search = req.params.search;
+
+    const response = await fetch(STARWARSAPI);
+
+    const data = await response.json();
+
+    redisClient.setEx("key", 600, data);
+
+    res.json(data);
+  } catch (error) {
+    res.status(500);
+  }
 });
 
 app.get("/getSessionId", (req, res) => {
