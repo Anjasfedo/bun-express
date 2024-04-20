@@ -21,3 +21,14 @@ Bun Pisma Init
 `bunx prisma init --datasource-provider sqlite`
 
 `bunx prisma migrate dev --name init`
+
+Folder structure
+
+- configs, shared configuration such db
+- controllers, endpoint handler
+- middleware, midleware function
+- models, model of database
+- routes, route of controller
+- schemas, zod validation of request
+- services, services for controller
+- utils, helper function

@@ -26,9 +26,14 @@
 
     "baseUrl": ".",
     "paths": {
+      "@configs/*": ["src/configs/*"],
+      "@controller/*": ["src/controllers/*"],
+      "@middlewares": ["src/middlewares/middleware.ts"],
+      "@models/*": ["src/models/*"],
+      "@routes/*": ["src/routes/*"],
+      "@schemas": ["src/schemas/schema.ts"],
+      "@services/*": ["src/services/*"],
       "@util/*": ["src/utils/*"],
-      "@schemas/*": ["src/schemas/*"],
-      "@middlewares": ["src/middlewares/middlewares.ts"]
     }
   }
 }
