@@ -1,3 +1,4 @@
+import { password } from "bun";
 import z from "zod";
 
 export const envSchema = z.object({
@@ -5,6 +6,7 @@ export const envSchema = z.object({
   PORT: z.coerce.number(),
   REDIS_URL: z.string(),
   SESSION_SECRET: z.string(),
+  TOKEN_SECRET: z.string(),
 });
 
 export const userSchema = z.object({
@@ -12,6 +14,7 @@ export const userSchema = z.object({
     email: z
       .string({ required_error: "Email is required" })
       .email("Invalid email"),
-    name: z.string({ required_error: "Name is required" }),
+    name: z.string().optional(),
+    password: z.string({ required_error: "Password is required" }),
   }),
 });

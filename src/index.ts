@@ -8,6 +8,7 @@ import session from "express-session";
 import redisClient from "@configs/redis.config";
 import ENV from "@configs/env.config";
 import { userSchema } from "@schemas";
+import authRouter from "@routes/auth.route";
 
 const app = express();
 const PORT = ENV.PORT;
@@ -42,13 +43,9 @@ app.get("/starwars/", checkCache, async (req: Request, res: Response) => {
 
     res.json(data);
   } catch (error) {
-    console.error(error)
-    res.status(500).json("Internal server error");
+    console.error(error);
+    res.status(500).json("Internal Server Error");
   }
-});
-
-app.get("/getSessionId", (req, res) => {
-  res.send(req.sessionID);
 });
 
 app.post(
@@ -58,11 +55,13 @@ app.post(
     try {
       return res.status(200).json(req.body);
     } catch (error) {
-      console.error(error)
-      return res.status(500).json("Internal server error");
+      console.error(error);
+      return res.status(500).json("Internal Server Error");
     }
   }
 );
+
+app.use("/api/auth", authRouter);
 
 const start = (): void => {
   try {
