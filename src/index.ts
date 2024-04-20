@@ -1,4 +1,4 @@
-import { checkCache, validate } from "src/middlewares/middleware";
+import { authenticateToken, checkCache, validateRequest } from "src/middlewares/middleware";
 import DB from "@configs/koneksi.config";
 import express from "express";
 import type { Request, Response } from "express";
@@ -9,11 +9,12 @@ import redisClient from "@configs/redis.config";
 import ENV from "@configs/env.config";
 import { userSchema } from "@schemas";
 import authRouter from "@routes/auth.route";
-
-const app = express();
-const PORT = ENV.PORT;
+import { internalServerErrorResponse } from "@util/util";
 
 const STARWARSAPI = "https://swapi.dev/api/films/";
+const PORT = ENV.PORT;
+
+const app = express();
 
 app.use(cors());
 app.use(express.json());
@@ -33,8 +34,9 @@ app.get("/", checkCache, async (req: Request, res: Response) => {
   res.send("Hello World!");
 });
 
-app.get("/starwars/", checkCache, async (req: Request, res: Response) => {
+app.get("/starwars", checkCache, authenticateToken, async (req: Request, res: Response) => {
   try {
+    console.log(req.payload.email);
     const response = await fetch(STARWARSAPI);
 
     const data = await response.json();
@@ -43,20 +45,18 @@ app.get("/starwars/", checkCache, async (req: Request, res: Response) => {
 
     res.json(data);
   } catch (error) {
-    console.error(error);
-    res.status(500).json("Internal Server Error");
+    return internalServerErrorResponse(res, error);
   }
 });
 
 app.post(
   "/post",
-  validate(userSchema),
+  validateRequest(userSchema),
   (req: Request, res: Response): Response => {
     try {
       return res.status(200).json(req.body);
     } catch (error) {
-      console.error(error);
-      return res.status(500).json("Internal Server Error");
+      return internalServerErrorResponse(res, error);
     }
   }
 );

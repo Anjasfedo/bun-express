@@ -1,23 +1,52 @@
-import jwt from "jsonwebtoken";
-import express from "express";
 import type { Request, Response } from "express";
 import bcrypt from "bcryptjs";
-import { generateAccessToken } from "@util/util";
+import { generateAccessToken, internalServerErrorResponse } from "@util/util";
+import { createUser, getUser } from "@services/auth.service";
+import { Prisma } from "@prisma/client";
 
-export const signUp = async(req: Request, res: Response) => {
-    const { email, password } = req.body;
+export const signUp = async (req: Request, res: Response) => {
+  const { email, password, name } = req.body;
 
-    try {
-        // const hashPasword = await bcrypt.hash(password, 12)
-        
-        const token = generateAccessToken(email)
+  try {
+    const hashPasword = await bcrypt.hash(password, 12);
 
-        res.json(token)
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json('Internal Server Error');
+    const user = await createUser(email, hashPasword, name);
+
+    const token = generateAccessToken(email);
+
+    res.status(201).json({
+      user,
+      token,
+    });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      return res
+        .status(400)
+        .json({ message: "Failed to create user" });
     }
 
+    return internalServerErrorResponse(res, error);
+  }
+};
 
-    return res.status(201).json("hewroo")
-}
+export const signIn = async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await getUser(email);
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({message: "Invalid credentials"});
+    }
+
+    const { name } = user;
+
+    const token = generateAccessToken(email);
+
+    res.status(200).json({
+      user: { email, name },
+      token,
+    });
+  } catch (error) {
+    return internalServerErrorResponse(res, error);
+  }
+};
