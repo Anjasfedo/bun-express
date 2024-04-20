@@ -5,7 +5,6 @@ export const createUser = async (
   password: string,
   name?: string
 ) => {
-  try {
     const createdUser = await DB.user.create({
       data: {
         email,
@@ -17,15 +16,10 @@ export const createUser = async (
         name: true,
       },
     });
-
     return createdUser;
-  } catch (error) {
-    throw error;
-  }
 };
 
 export const getUser = async (email: string) => {
-  try {
     const user = await DB.user.findUnique({
       where: {
         email,
@@ -38,7 +32,4 @@ export const getUser = async (email: string) => {
     });
 
     return user;
-  } catch (error) {
-    throw error;
-  }
 };

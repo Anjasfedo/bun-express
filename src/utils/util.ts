@@ -5,10 +5,10 @@ import type { Response } from "express";
 export const generateAccessToken = (email: string) => {
   const payload = { email };
 
-  return jwt.sign(payload, ENV.TOKEN_SECRET, { expiresIn: '60s' });
+  return jwt.sign(payload, ENV.TOKEN_SECRET, { expiresIn: '600s' });
 };
 
 export const internalServerErrorResponse = (res: Response, error: unknown) => {
   console.error(error);
-  return res.status(500).json({ error: "Internal Server Error", message: error instanceof Error ? error.message : "An unknown error occurred" });
+  return res.status(500).json({ message: error instanceof Error ? error.message : "An unknown error occurred" });
 }

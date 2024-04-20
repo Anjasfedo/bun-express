@@ -1,5 +1,3 @@
-import jwt from "jsonwebtoken";
-import express from "express";
 import type { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import { generateAccessToken, internalServerErrorResponse } from "@util/util";
@@ -24,7 +22,7 @@ export const signUp = async (req: Request, res: Response) => {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       return res
         .status(400)
-        .json({ error: "Bad Request", message: error.message });
+        .json({ message: "Failed to create user" });
     }
 
     return internalServerErrorResponse(res, error);
@@ -36,23 +34,16 @@ export const signIn = async (req: Request, res: Response) => {
 
   try {
     const user = await getUser(email);
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({message: "Invalid credentials"});
     }
 
-    const { email: uEmail, name, password: uPassword } = user;
-
-    const validPassword = await bcrypt.compare(password, uPassword);
-
-    if (!validPassword) {
-      return res.status(401).json({ error: "Invalid password" });
-    }
+    const { name } = user;
 
     const token = generateAccessToken(email);
 
     res.status(200).json({
-      user: { email: uEmail, name },
+      user: { email, name },
       token,
     });
   } catch (error) {
