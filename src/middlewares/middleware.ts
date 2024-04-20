@@ -1,6 +1,6 @@
 import type { AnyZodObject } from "zod";
 import type { Request, Response, NextFunction } from "express";
-import redisClient from "@util/redis";
+import redisClient from "@configs/redis.config";
 
 export const validate =
   (schema: AnyZodObject) =>

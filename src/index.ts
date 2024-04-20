@@ -1,15 +1,13 @@
-import { checkCache, validate } from "@middlewares";
-import { userSchema } from "@schemas/user";
-import DB from "@util/koneksi.server";
+import { checkCache, validate } from "src/middlewares/middleware";
+import DB from "@configs/koneksi.config";
 import express from "express";
 import type { Request, Response } from "express";
 import cors from "cors";
 import RedisStore from "connect-redis";
 import session from "express-session";
-import { ENV } from "@schemas/env";
-import redisClient from "@util/redis";
-
-
+import redisClient from "@configs/redis.config";
+import ENV from "@configs/env.config";
+import { userSchema } from "@schemas";
 
 const app = express();
 const PORT = ENV.PORT;

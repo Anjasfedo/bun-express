@@ -27,8 +27,9 @@
     "baseUrl": ".",
     "paths": {
       "@util/*": ["src/utils/*"],
-      "@schemas/*": ["src/schemas/*"],
-      "@middlewares": ["src/middlewares/middlewares.ts"]
+      "@schemas": ["src/schemas/schema.ts"],
+      "@middlewares": ["src/middlewares/middleware.ts"],
+      "@configs/*": ["src/configs/*"]
     }
   }
 }
