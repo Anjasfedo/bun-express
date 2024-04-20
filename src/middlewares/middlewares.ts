@@ -1,6 +1,6 @@
 import type { AnyZodObject } from "zod";
 import type { Request, Response, NextFunction } from "express";
-import { redisClient } from "src";
+import redisClient from "@util/redis";
 
 export const validate =
   (schema: AnyZodObject) =>
@@ -20,11 +20,16 @@ export const checkCache = async (
 ) => {
   let search = req.params.search;
 
-  const value = await redisClient.get("key");
+  try {
+    const value = await redisClient.get("starwars");
 
-  if (!value) {
-    return next();
+    if (!value) {
+      return next();
+    }
+
+    return res.json(JSON.parse(value));
+  } catch (error) {
+    console.error('Error retrieving data from cache:', error);
+    return res.status(500).json('Internal server error')
   }
-  
-  return res.json(JSON.parse(value));
 };

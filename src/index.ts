@@ -5,17 +5,11 @@ import express from "express";
 import type { Request, Response } from "express";
 import cors from "cors";
 import RedisStore from "connect-redis";
-import redis from "redis";
-import { promisify } from "util";
 import session from "express-session";
 import { ENV } from "@schemas/env";
+import redisClient from "@util/redis";
 
-export const redisClient = redis.createClient({
-  url: ENV.REDIS_URL,
-});
-redisClient.connect().catch(console.error);
-// export const getAsync = promisify(client.get).bind(client);
-// export const setAsync = promisify(client.set).bind(client);
+
 
 const app = express();
 const PORT = ENV.PORT;
@@ -37,28 +31,21 @@ app.use(
 );
 
 app.get("/", checkCache, async (req: Request, res: Response) => {
-  // req.session.user = "fedo";
-
-  // const { user } = req.session;
-
-  // console.log(user);
-  // redisClient.setEx("key", 60, "hello");
   res.send("Hello World!");
 });
 
 app.get("/starwars/", checkCache, async (req: Request, res: Response) => {
   try {
-    let search = req.params.search;
-
     const response = await fetch(STARWARSAPI);
 
     const data = await response.json();
 
-    redisClient.setEx("key", 600, JSON.stringify(data));
+    redisClient.setEx("starwars", 600, JSON.stringify(data));
 
     res.json(data);
   } catch (error) {
-    res.status(500);
+    console.error(error)
+    res.status(500).json("Internal server error");
   }
 });
 
@@ -73,7 +60,8 @@ app.post(
     try {
       return res.status(200).json(req.body);
     } catch (error) {
-      return res.status(500).json(error);
+      console.error(error)
+      return res.status(500).json("Internal server error");
     }
   }
 );
