@@ -9,11 +9,12 @@ import redisClient from "@configs/redis.config";
 import ENV from "@configs/env.config";
 import { userSchema } from "@schemas";
 import authRouter from "@routes/auth.route";
-
-const app = express();
-const PORT = ENV.PORT;
+import { internalServerErrorResponse } from "@util/util";
 
 const STARWARSAPI = "https://swapi.dev/api/films/";
+const PORT = ENV.PORT;
+
+const app = express();
 
 app.use(cors());
 app.use(express.json());
@@ -43,8 +44,7 @@ app.get("/starwars/", checkCache, async (req: Request, res: Response) => {
 
     res.json(data);
   } catch (error) {
-    console.error(error);
-    res.status(500).json("Internal Server Error");
+    return internalServerErrorResponse(res, error);
   }
 });
 
@@ -55,8 +55,7 @@ app.post(
     try {
       return res.status(200).json(req.body);
     } catch (error) {
-      console.error(error);
-      return res.status(500).json("Internal Server Error");
+      return internalServerErrorResponse(res, error);
     }
   }
 );
