@@ -13,13 +13,17 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Hello World!");
 });
 
-app.post(
-  "/post",
-  validate(userSchema),
-  (req: Request, res: Response): Response => {
-    return res.status(200).json(req.body);
+app.post("/post", async (req: Request, res: Response) => {
+  try {
+    const { body } = await validate(userSchema, req);
+    return res.status(200).json(body);
+  } catch (error) {
+    if (error instanceof Error) {
+      return res.status(400).json({ error: error.message });
+    }
+    return res.status(500).json({ error: "Internal server error" });
   }
-);
+});
 
 const start = (): void => {
   try {
