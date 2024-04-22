@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import { generateAccessToken, internalServerErrorResponse } from "@util/util";
-import { createUser, getUser } from "@services/auth.service";
+import { createUserService, getUserService } from "@services/auth.service";
 import { Prisma } from "@prisma/client";
 
 export const signUp = async (req: Request, res: Response) => {
@@ -10,7 +10,7 @@ export const signUp = async (req: Request, res: Response) => {
   try {
     const hashPasword = await bcrypt.hash(password, 12);
 
-    const user = await createUser(email, hashPasword, name);
+    const user = await createUserService(email, hashPasword, name);
 
     const token = generateAccessToken(email);
 
@@ -33,7 +33,7 @@ export const signIn = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   try {
-    const user = await getUser(email);
+    const user = await getUserService(email);
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({message: "Invalid credentials"});
     }
