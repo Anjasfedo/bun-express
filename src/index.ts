@@ -7,9 +7,9 @@ import RedisStore from "connect-redis";
 import session from "express-session";
 import redisClient from "@configs/redis.config";
 import ENV from "@configs/env.config";
-import { userSchema } from "@schemas";
 import authRouter from "@routes/auth.route";
 import { internalServerErrorResponse } from "@util/util";
+import postRouter from "@routes/post.route";
 
 const STARWARSAPI = "https://swapi.dev/api/films/";
 const PORT = ENV.PORT;
@@ -49,19 +49,21 @@ app.get("/starwars", checkCache, authenticateToken, async (req: Request, res: Re
   }
 });
 
-app.post(
-  "/post",
-  validateRequest(userSchema),
-  (req: Request, res: Response): Response => {
-    try {
-      return res.status(200).json(req.body);
-    } catch (error) {
-      return internalServerErrorResponse(res, error);
-    }
-  }
-);
+// app.post(
+//   "/post",
+//   validateRequest(userSchema),
+//   (req: Request, res: Response): Response => {
+//     try {
+//       return res.status(200).json(req.body);
+//     } catch (error) {
+//       return internalServerErrorResponse(res, error);
+//     }
+//   }
+// );
 
 app.use("/api/auth", authRouter);
+
+app.use("/posts", postRouter)
 
 const start = (): void => {
   try {

@@ -1,5 +1,5 @@
 import { signIn, signUp } from "@controller/auth.controller";
-import { protectAccess, validateRequest } from "@middlewares";
+import { validateRequest } from "@middlewares";
 import { userSchema } from "@schemas";
 import express from "express";
 

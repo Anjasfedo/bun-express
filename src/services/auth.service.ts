@@ -1,6 +1,6 @@
 import DB from "@configs/koneksi.config";
 
-export const createUser = async (
+export const createUserService = async (
   email: string,
   password: string,
   name?: string
@@ -19,7 +19,7 @@ export const createUser = async (
     return createdUser;
 };
 
-export const getUser = async (email: string) => {
+export const getUserService = async (email: string) => {
     const user = await DB.user.findUnique({
       where: {
         email,
