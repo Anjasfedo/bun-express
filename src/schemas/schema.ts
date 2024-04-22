@@ -23,3 +23,10 @@ export const userSchema = z.object({
     password: z.string({ required_error: "Password is required" }),
   }),
 });
+
+export const postSchema = z.object({
+  body: z.strictObject({
+    title: z.string(),
+    content: z.string(),
+  }),
+});
